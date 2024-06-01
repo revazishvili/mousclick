@@ -1,0 +1,81 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Random;
+
+public class ReactionTestGame extends JFrame implements ActionListener {
+    private JButton reactionButton;
+    private JLabel instructionLabel;
+    private long startTime;
+
+    public ReactionTestGame() {
+        // ფანჯრის სათაურის დაყენება
+        setTitle("სწრაფი რეაქციის თამაში");
+        // ფანჯრის ზომის დაყენება
+        setSize(400, 300);
+        // ფანჯრის დახურვის ქცევის დაყენება
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // ფანჯრის განლაგების ცენტრში დაყენება
+        setLocationRelativeTo(null);
+
+        // კონტეინერის განლაგების მენეჯერის დაყენება
+        setLayout(new BorderLayout());
+
+        // ინსტრუქციის ეტიკეტის შექმნა
+        instructionLabel = new JLabel("მოემზადეთ და დაელოდეთ ღილაკის გამოჩენას...", SwingConstants.CENTER);
+        add(instructionLabel, BorderLayout.CENTER);
+
+        // რეაქციის ღილაკის შექმნა
+        reactionButton = new JButton("დაჭირეთ რაც შეიძლება სწრაფად!");
+        reactionButton.setVisible(false);
+        reactionButton.addActionListener(this);
+        add(reactionButton, BorderLayout.SOUTH);
+
+        // თამაშის დაწყება
+        startGame();
+    }
+
+    private void startGame() {
+        // შემთხვევითი დროის შემდეგ ღილაკის გამოჩენა
+        Random random = new Random();
+        int delay = 2000 + random.nextInt(5000); // 2-დან 7 წამამდე
+
+        Timer timer = new Timer(delay, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reactionButton.setVisible(true);
+                startTime = System.currentTimeMillis();
+            }
+        });
+        timer.setRepeats(false);
+        timer.start();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == reactionButton) {
+            long reactionTime = System.currentTimeMillis() - startTime;
+            instructionLabel.setText("თქვენი რეაქციის დროა: " + reactionTime + " მილიწამი.");
+            reactionButton.setVisible(false);
+
+            // ახალი თამაშის დაწყება 3 წამის შემდეგ
+            Timer timer = new Timer(3000, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    instructionLabel.setText("მოემზადეთ და დაელოდეთ ღილაკის გამოჩენას...");
+                    startGame();
+                }
+            });
+            timer.setRepeats(false);
+            timer.start();
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new ReactionTestGame().setVisible(true);
+            }
+        });
+    }
+}
